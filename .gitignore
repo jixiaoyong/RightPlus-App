@@ -1,0 +1,19 @@
+# macOS System Files
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Editor & IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.bak
+
+# Temporary & Release Archives (Releases hosted on GitHub Releases, not git repo)
+dist/
+*.zip
+*.tar.gz
+*.dmg

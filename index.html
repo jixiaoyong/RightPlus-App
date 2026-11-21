@@ -1,230 +1,489 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="auto">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Right+ (RightPlus) - 轻量高效的 macOS Finder 右键增强利器</title>
-  <meta name="description" content="Right+ 是一款专为 macOS 打造的原生 Finder 右键增强扩展工具。支持常用文件快速新建、常用应用快速打开、一键复制完整路径与文件名、所在目录直达终端。纯 Swift 原生，轻量极速，保护隐私。">
+  <title>Right+ — The Native & Elegant Finder Extension for macOS</title>
+  <meta name="description" content="Right+ is a native macOS Finder extension. Built purely in Swift, fast, lightweight, and offline. Quick file creation, open with apps, copy paths, and instant terminal access.">
   <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
   <style>
+    /* ==========================================================================
+       CSS Variables & Apple-inspired Theme Tokens
+       ========================================================================== */
     :root {
-      --bg: #f5f5f7;
-      --card-bg: rgba(255, 255, 255, 0.72);
-      --card-border: rgba(0, 0, 0, 0.08);
+      --font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "PingFang SC", sans-serif;
+      --font-mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+      
+      /* Light Mode Palette */
+      --bg-page: #fbfbfd;
+      --bg-card: rgba(255, 255, 255, 0.8);
+      --bg-card-hover: rgba(255, 255, 255, 0.95);
+      --border-subtle: rgba(0, 0, 0, 0.08);
+      --border-card: rgba(0, 0, 0, 0.06);
+      --text-hero: #1d1d1f;
       --text-primary: #1d1d1f;
-      --text-secondary: #86868b;
+      --text-secondary: #6e6e73;
+      --text-tertiary: #86868b;
       --accent: #0071e3;
       --accent-hover: #0077ed;
-      --code-bg: #e5e5ea;
-      --nav-bg: rgba(245, 245, 247, 0.82);
-      --shadow: 0 12px 32px rgba(0, 0, 0, 0.05);
+      --accent-glow: rgba(0, 113, 227, 0.22);
+      --code-bg: #f0f0f2;
+      --nav-bg: rgba(251, 251, 253, 0.75);
+      --nav-border: rgba(0, 0, 0, 0.08);
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.08);
+      --window-border: rgba(0, 0, 0, 0.12);
+      --window-header: #f2f2f4;
+      --dropdown-bg: rgba(255, 255, 255, 0.95);
+    }
+
+    [data-theme="dark"] {
+      --bg-page: #000000;
+      --bg-card: rgba(26, 26, 30, 0.65);
+      --bg-card-hover: rgba(36, 36, 42, 0.75);
+      --border-subtle: rgba(255, 255, 255, 0.1);
+      --border-card: rgba(255, 255, 255, 0.08);
+      --text-hero: #ffffff;
+      --text-primary: #f5f5f7;
+      --text-secondary: #a1a1a6;
+      --text-tertiary: #6e6e73;
+      --accent: #2997ff;
+      --accent-hover: #40a9ff;
+      --accent-glow: rgba(41, 151, 255, 0.3);
+      --code-bg: #1c1c1e;
+      --nav-bg: rgba(0, 0, 0, 0.75);
+      --nav-border: rgba(255, 255, 255, 0.08);
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+      --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.6);
+      --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.8);
+      --window-border: rgba(255, 255, 255, 0.12);
+      --window-header: #1e1e22;
+      --dropdown-bg: rgba(30, 30, 35, 0.95);
     }
 
     @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #0d0d0f;
-        --card-bg: rgba(28, 28, 30, 0.72);
-        --card-border: rgba(255, 255, 255, 0.12);
+      [data-theme="auto"] {
+        --bg-page: #000000;
+        --bg-card: rgba(26, 26, 30, 0.65);
+        --bg-card-hover: rgba(36, 36, 42, 0.75);
+        --border-subtle: rgba(255, 255, 255, 0.1);
+        --border-card: rgba(255, 255, 255, 0.08);
+        --text-hero: #ffffff;
         --text-primary: #f5f5f7;
-        --text-secondary: #98989d;
+        --text-secondary: #a1a1a6;
+        --text-tertiary: #6e6e73;
         --accent: #2997ff;
         --accent-hover: #40a9ff;
-        --code-bg: #2c2c2e;
-        --nav-bg: rgba(13, 13, 15, 0.82);
-        --shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+        --accent-glow: rgba(41, 151, 255, 0.3);
+        --code-bg: #1c1c1e;
+        --nav-bg: rgba(0, 0, 0, 0.75);
+        --nav-border: rgba(255, 255, 255, 0.08);
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+        --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.6);
+        --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.8);
+        --window-border: rgba(255, 255, 255, 0.12);
+        --window-header: #1e1e22;
+        --dropdown-bg: rgba(30, 30, 35, 0.95);
       }
     }
 
+    /* ==========================================================================
+       Reset & Base
+       ========================================================================== */
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
       -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "PingFang SC", "Helvetica Neue", sans-serif;
-      background-color: var(--bg);
+      font-family: var(--font-stack);
+      background-color: var(--bg-page);
       color: var(--text-primary);
-      line-height: 1.6;
-      transition: background-color 0.3s ease, color 0.3s ease;
+      line-height: 1.5;
+      overflow-x: hidden;
+      transition: background-color 0.35s ease, color 0.35s ease;
+      position: relative;
     }
 
-    /* 顶部导航 */
+    /* Ambient Background Light for Apple aesthetic */
+    .ambient-glow {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 1000px;
+      height: 600px;
+      background: radial-gradient(circle at center, var(--accent-glow) 0%, rgba(0,0,0,0) 70%);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.55;
+    }
+
+    /* ==========================================================================
+       Navbar
+       ========================================================================== */
     header {
       position: sticky;
       top: 0;
-      z-index: 100;
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      z-index: 999;
+      backdrop-filter: saturate(180%) blur(20px);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
       background-color: var(--nav-bg);
-      border-bottom: 1px solid var(--card-border);
+      border-bottom: 1px solid var(--nav-border);
+      transition: background-color 0.35s ease, border-color 0.35s ease;
     }
 
-    .nav-container {
+    .nav-inner {
       max-width: 1080px;
       margin: 0 auto;
-      padding: 0.85rem 1.5rem;
+      padding: 0 1.5rem;
+      height: 52px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      font-weight: 700;
-      font-size: 1.25rem;
+      gap: 0.6rem;
       text-decoration: none;
-      color: var(--text-primary);
+      color: var(--text-hero);
+      font-weight: 600;
+      font-size: 1.15rem;
+      letter-spacing: -0.01em;
     }
 
     .brand img {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
     }
 
-    .nav-links {
+    .nav-center {
       display: flex;
       align-items: center;
-      gap: 1.5rem;
+      gap: 1.8rem;
       list-style: none;
     }
 
-    .nav-links a {
-      text-decoration: none;
-      color: var(--text-secondary);
-      font-size: 0.95rem;
-      font-weight: 500;
-      transition: color 0.2s;
+    @media (max-width: 768px) {
+      .nav-center {
+        display: none;
+      }
     }
 
-    .nav-links a:hover {
+    .nav-center a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 400;
+      transition: color 0.2s ease;
+    }
+
+    .nav-center a:hover {
+      color: var(--text-primary);
+    }
+
+    .nav-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .pill-btn {
+      background: var(--code-bg);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      padding: 0.32rem 0.68rem;
+      border-radius: 980px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      user-select: none;
+    }
+
+    .pill-btn:hover {
+      border-color: var(--accent);
       color: var(--accent);
     }
 
-    .btn-github {
-      background-color: var(--card-bg);
-      border: 1px solid var(--card-border);
-      padding: 0.4rem 0.9rem;
-      border-radius: 980px;
-      color: var(--text-primary) !important;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    /* Hero 区域 */
+    /* ==========================================================================
+       Hero Section
+       ========================================================================== */
     .hero {
+      position: relative;
+      z-index: 20;
       max-width: 900px;
-      margin: 5rem auto 3rem;
+      margin: 4.8rem auto 2rem;
       text-align: center;
       padding: 0 1.5rem;
     }
 
-    .badge {
-      display: inline-block;
-      padding: 0.35rem 0.9rem;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--accent);
-      background: rgba(41, 151, 255, 0.12);
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.32rem 0.85rem;
       border-radius: 980px;
-      margin-bottom: 1.5rem;
+      background: rgba(125, 125, 135, 0.08);
+      border: 1px solid var(--border-subtle);
+      color: var(--accent);
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin-bottom: 1.8rem;
     }
 
     .hero h1 {
-      font-size: 3.2rem;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      line-height: 1.15;
-      margin-bottom: 1.25rem;
+      font-size: clamp(2.4rem, 5.5vw, 4.2rem);
+      font-weight: 700;
+      line-height: 1.08;
+      letter-spacing: -0.035em;
+      color: var(--text-hero);
+      margin-bottom: 1.4rem;
+    }
+
+    .hero-gradient {
+      background: linear-gradient(180deg, var(--text-hero) 0%, var(--text-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .hero p {
-      font-size: 1.25rem;
+      font-size: clamp(1.05rem, 2vw, 1.3rem);
       color: var(--text-secondary);
-      max-width: 680px;
+      max-width: 640px;
       margin: 0 auto 2.5rem;
       font-weight: 400;
+      line-height: 1.45;
+      letter-spacing: -0.015em;
     }
 
-    .hero-actions {
+    /* ==========================================================================
+       Download Split Button with Dropdown
+       ========================================================================== */
+    .hero-cta {
       display: flex;
       justify-content: center;
+      align-items: center;
       gap: 1rem;
-      flex-wrap: wrap;
+      position: relative;
+      z-index: 50;
+      margin-bottom: 3.5rem;
     }
 
-    .btn-primary {
-      background-color: var(--accent);
-      color: #fff;
-      font-weight: 600;
-      font-size: 1.05rem;
-      padding: 0.85rem 2rem;
+    .split-btn-group {
+      position: relative;
+      z-index: 50;
+      display: inline-flex;
+      box-shadow: 0 6px 20px var(--accent-glow);
       border-radius: 980px;
+    }
+
+    .btn-main-download {
+      background-color: var(--accent);
+      color: #ffffff;
+      padding: 0.85rem 1.6rem 0.85rem 1.8rem;
+      border-top-left-radius: 980px;
+      border-bottom-left-radius: 980px;
+      font-size: 1.02rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
       gap: 0.6rem;
-      box-shadow: 0 4px 14px rgba(0, 113, 227, 0.3);
-      transition: all 0.2s ease;
+      transition: background-color 0.2s ease;
+      border: none;
+      cursor: pointer;
     }
 
-    .btn-primary:hover {
+    .btn-main-download:hover {
       background-color: var(--accent-hover);
-      transform: translateY(-1px);
     }
 
-    .btn-secondary {
-      background-color: var(--card-bg);
-      border: 1px solid var(--card-border);
-      color: var(--text-primary);
-      font-weight: 600;
-      font-size: 1.05rem;
-      padding: 0.85rem 1.8rem;
-      border-radius: 980px;
-      text-decoration: none;
+    .btn-dropdown-toggle {
+      background-color: var(--accent);
+      color: #ffffff;
+      padding: 0 1rem;
+      border-top-right-radius: 980px;
+      border-bottom-right-radius: 980px;
+      border: none;
+      border-left: 1px solid rgba(255, 255, 255, 0.25);
+      cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
-      transition: all 0.2s ease;
+      justify-content: center;
+      transition: background-color 0.2s ease;
     }
 
-    .btn-secondary:hover {
-      background-color: var(--code-bg);
+    .btn-dropdown-toggle:hover {
+      background-color: var(--accent-hover);
     }
 
-    /* 预览展示图 */
-    .hero-preview {
-      max-width: 860px;
-      margin: 3.5rem auto 5rem;
-      padding: 0 1.5rem;
-    }
-
-    .preview-window {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      width: 290px;
+      background: var(--dropdown-bg);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--border-card);
       border-radius: 16px;
-      box-shadow: var(--shadow);
-      padding: 1.5rem;
-      backdrop-filter: blur(20px);
-      text-align: center;
+      padding: 0.5rem;
+      box-shadow: var(--shadow-lg);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px) scale(0.97);
+      transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+      z-index: 1000;
+      text-align: left;
     }
 
-    .preview-window img {
+    .dropdown-menu.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+
+    .dropdown-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      padding: 0.75rem 0.9rem;
+      border-radius: 10px;
+      text-decoration: none;
+      color: var(--text-primary);
+      transition: background-color 0.15s ease;
+    }
+
+    .dropdown-item:hover {
+      background-color: rgba(125, 125, 135, 0.12);
+    }
+
+    .dropdown-item .item-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .dropdown-item .item-desc {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .dropdown-item .tag-rec {
+      font-size: 0.68rem;
+      background: rgba(41, 151, 255, 0.15);
+      color: var(--accent);
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .dropdown-divider {
+      height: 1px;
+      background: var(--border-card);
+      margin: 0.35rem 0;
+    }
+
+    /* ==========================================================================
+       Mac Window Preview (Apple Hardware / UI Showcase)
+       ========================================================================== */
+    .preview-container {
+      max-width: 920px;
+      margin: 0 auto 6rem;
+      padding: 0 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .mac-window {
+      background: var(--bg-card);
+      border: 1px solid var(--window-border);
+      border-radius: 14px;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .mac-window:hover {
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.14);
+    }
+
+    .mac-titlebar {
+      height: 38px;
+      background: var(--window-header);
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      position: relative;
+    }
+
+    .traffic-lights {
+      display: flex;
+      gap: 8px;
+    }
+
+    .traffic-light {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .traffic-close { background: #ff5f57; }
+    .traffic-min { background: #febc2e; }
+    .traffic-max { background: #28c840; }
+
+    .window-title {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.8rem;
+      color: var(--text-tertiary);
+      font-weight: 500;
+    }
+
+    .window-canvas {
+      padding: 2.5rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at center, rgba(125, 125, 135, 0.04) 0%, transparent 100%);
+    }
+
+    .window-canvas img {
       max-width: 100%;
       height: auto;
-      border-radius: 10px;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
     }
 
-    /* 特性网格 */
+    /* ==========================================================================
+       Bento Grid Features (Apple Style)
+       ========================================================================== */
     .section {
       max-width: 1080px;
-      margin: 5rem auto;
+      margin: 6rem auto;
       padding: 0 1.5rem;
+      position: relative;
+      z-index: 1;
     }
 
     .section-header {
@@ -232,85 +491,120 @@
       margin-bottom: 3.5rem;
     }
 
+    .section-badge {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.6rem;
+    }
+
     .section-header h2 {
-      font-size: 2.2rem;
+      font-size: clamp(2rem, 3.8vw, 2.8rem);
       font-weight: 700;
-      letter-spacing: -0.02em;
-      margin-bottom: 0.75rem;
+      letter-spacing: -0.03em;
+      color: var(--text-hero);
+      margin-bottom: 0.8rem;
     }
 
     .section-header p {
+      font-size: 1.15rem;
       color: var(--text-secondary);
-      font-size: 1.1rem;
+      max-width: 580px;
+      margin: 0 auto;
     }
 
-    .grid {
+    .bento-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 1.5rem;
     }
 
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 2rem;
-      box-shadow: var(--shadow);
+    @media (max-width: 860px) {
+      .bento-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .bento-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 20px;
+      padding: 2.2rem 2rem;
       backdrop-filter: blur(20px);
-      transition: transform 0.2s ease;
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: var(--shadow-sm);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
     }
 
-    .card:hover {
-      transform: translateY(-3px);
+    .bento-card:hover {
+      background: var(--bg-card-hover);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--border-subtle);
     }
 
-    .card-icon {
-      font-size: 2.2rem;
-      margin-bottom: 1.2rem;
-      display: inline-block;
+    .card-icon-wrap {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(125, 125, 135, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
     }
 
-    .card h3 {
+    .bento-card h3 {
       font-size: 1.25rem;
-      margin-bottom: 0.6rem;
       font-weight: 600;
+      letter-spacing: -0.015em;
+      color: var(--text-hero);
+      margin-bottom: 0.6rem;
     }
 
-    .card p {
+    .bento-card p {
       color: var(--text-secondary);
       font-size: 0.95rem;
-      line-height: 1.6;
+      line-height: 1.55;
     }
 
-    /* 安装与安全指南 */
-    .install-box {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 18px;
-      padding: 2.5rem;
-      box-shadow: var(--shadow);
+    /* ==========================================================================
+       Install & Gatekeeper Guide
+       ========================================================================== */
+    .install-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 24px;
+      padding: 2.8rem;
+      box-shadow: var(--shadow-md);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
     }
 
-    .step-list {
-      list-style: none;
-      counter-reset: steps;
+    .steps-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
       margin-top: 1.5rem;
     }
 
-    .step-item {
-      position: relative;
-      padding-left: 3rem;
-      margin-bottom: 2rem;
+    .step-row {
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
     }
 
-    .step-item::before {
-      counter-increment: steps;
-      content: counter(steps);
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 2rem;
-      height: 2rem;
+    .step-number {
+      width: 36px;
+      height: 36px;
+      flex-shrink: 0;
       border-radius: 50%;
       background: var(--accent);
       color: #fff;
@@ -318,235 +612,635 @@
       align-items: center;
       justify-content: center;
       font-weight: 700;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
     }
 
-    .step-item h4 {
-      font-size: 1.1rem;
+    .step-content {
+      flex: 1;
+    }
+
+    .step-content h4 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text-hero);
       margin-bottom: 0.4rem;
     }
 
-    .step-item p {
+    .step-content p {
       color: var(--text-secondary);
       font-size: 0.95rem;
+      line-height: 1.6;
     }
 
-    .code-box {
+    .code-pill {
       background: var(--code-bg);
-      padding: 0.75rem 1rem;
-      border-radius: 8px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: 0.9rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 0.75rem 1.1rem;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-top: 0.6rem;
+      margin-top: 0.8rem;
+      user-select: all;
     }
 
-    .copy-btn {
+    .btn-copy {
       background: transparent;
       border: none;
       color: var(--accent);
-      cursor: pointer;
-      font-size: 0.85rem;
       font-weight: 600;
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      transition: background 0.2s;
     }
 
-    /* FAQ */
+    .btn-copy:hover {
+      background: rgba(0, 113, 227, 0.1);
+    }
+
+    /* ==========================================================================
+       Accordion FAQ
+       ========================================================================== */
+    .faq-list {
+      max-width: 820px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
     .faq-item {
-      border-bottom: 1px solid var(--card-border);
-      padding: 1.5rem 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: all 0.2s ease;
     }
 
-    .faq-item h4 {
-      font-size: 1.15rem;
-      margin-bottom: 0.5rem;
+    .faq-question {
+      width: 100%;
+      text-align: left;
+      padding: 1.25rem 1.5rem;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text-hero);
     }
 
-    .faq-item p {
+    .faq-icon {
+      transition: transform 0.25s ease;
+      color: var(--text-tertiary);
+    }
+
+    .faq-item.active .faq-icon {
+      transform: rotate(180deg);
+      color: var(--accent);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+      padding: 0 1.5rem;
       color: var(--text-secondary);
       font-size: 0.95rem;
+      line-height: 1.6;
     }
 
-    /* 页脚 */
+    .faq-item.active .faq-answer {
+      max-height: 200px;
+      padding-bottom: 1.25rem;
+    }
+
+    /* ==========================================================================
+       Footer
+       ========================================================================== */
     footer {
-      border-top: 1px solid var(--card-border);
-      padding: 3rem 1.5rem;
+      border-top: 1px solid var(--border-subtle);
+      padding: 4rem 1.5rem 3rem;
       text-align: center;
       color: var(--text-secondary);
-      font-size: 0.9rem;
-      margin-top: 6rem;
+      font-size: 0.88rem;
+      position: relative;
+      z-index: 1;
     }
 
     footer a {
       color: var(--accent);
       text-decoration: none;
     }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
 
-  <!-- 顶部导航 -->
+  <!-- Ambient Glow Background -->
+  <div class="ambient-glow"></div>
+
+  <!-- Navigation Bar -->
   <header>
-    <div class="nav-container">
+    <div class="nav-inner">
       <a href="#" class="brand">
         <img src="assets/logo.svg" alt="Right+ Logo">
         <span>Right+</span>
       </a>
-      <ul class="nav-links">
-        <li><a href="#features">功能特性</a></li>
-        <li><a href="#install">安装指引</a></li>
-        <li><a href="#faq">常见问题</a></li>
-        <li>
-          <a href="https://github.com/jixiaoyong/RightPlus-App" target="_blank" class="btn-github">
-            <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
-              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
-            </svg>
-            <span>GitHub</span>
-          </a>
-        </li>
+      
+      <ul class="nav-center">
+        <li><a href="#features" data-i18n="nav.features">功能特性</a></li>
+        <li><a href="#install" data-i18n="nav.install">安装指引</a></li>
+        <li><a href="#faq" data-i18n="nav.faq">常见问题</a></li>
+        <li><a href="https://github.com/jixiaoyong/RightPlus-App/releases" target="_blank" data-i18n="nav.releases">发行日志</a></li>
       </ul>
+
+      <div class="nav-controls">
+        <!-- Language Switcher -->
+        <button id="lang-btn" class="pill-btn" aria-label="Toggle Language">
+          <span id="lang-text">English</span>
+        </button>
+
+        <!-- Theme Switcher -->
+        <button id="theme-btn" class="pill-btn" aria-label="Toggle Theme">
+          <svg id="theme-icon-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg id="theme-icon-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+
+        <!-- GitHub Link -->
+        <a href="https://github.com/jixiaoyong/RightPlus-App" target="_blank" class="pill-btn" aria-label="GitHub Repository">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+          </svg>
+        </a>
+      </div>
     </div>
   </header>
 
-  <!-- Hero 区域 -->
+  <!-- Hero Section -->
   <section class="hero">
-    <div class="badge">🚀 macOS 原生 Finder 右键增强扩展</div>
-    <h1>让 macOS Finder 右键<br>恢复强大与高效</h1>
-    <p>Right+ 采用 Swift 与原生 FIFinderSync API 构建，专注于轻量、零卡顿与纯粹体验。快速新建文件、常用 App 唤起、路径复制与目录直达终端，触手可及。</p>
-    <div class="hero-actions">
-      <a href="https://github.com/jixiaoyong/RightPlus-App/releases/latest" class="btn-primary">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-          <polyline points="7 10 12 15 17 10"></polyline>
-          <line x1="12" y1="15" x2="12" y2="3"></line>
-        </svg>
-        <span>下载 Apple Silicon (M系列) 包</span>
-      </a>
-      <a href="https://github.com/jixiaoyong/RightPlus-App/releases/latest" class="btn-secondary">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-          <polyline points="7 10 12 15 17 10"></polyline>
-          <line x1="12" y1="15" x2="12" y2="3"></line>
-        </svg>
-        <span>下载 Intel (x86_64) 包</span>
-      </a>
-      <a href="https://github.com/jixiaoyong/RightPlus-App/releases" class="btn-secondary">
-        <span>全部 Releases</span>
-      </a>
+    <div class="hero-badge">
+      <span>✨ macOS Native Finder Extension</span>
+    </div>
+
+    <h1>
+      <span class="hero-gradient" data-i18n="hero.title">让访达右键，恢复本该有的优雅与强大</span>
+    </h1>
+
+    <p data-i18n="hero.subtitle">
+      Right+ 专为 macOS 打造。纯 Swift 原生，零多余常驻，毫秒级响应。常用文件一键新建、专属 App 快速唤起、精准路径复制与所在目录直达终端。
+    </p>
+
+    <!-- Split Download Button with Dropdown -->
+    <div class="hero-cta">
+      <div class="split-btn-group">
+        <a href="https://github.com/jixiaoyong/RightPlus-App/releases/latest" class="btn-main-download" id="main-download-link">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span id="main-download-text" data-i18n="hero.downloadApple">下载 Apple Silicon 版本 (M系列)</span>
+        </a>
+        <button class="btn-dropdown-toggle" id="dropdown-toggle" aria-label="More download options">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+
+        <!-- Dropdown Menu -->
+        <div class="dropdown-menu" id="download-dropdown">
+          <a href="https://github.com/jixiaoyong/RightPlus-App/releases/latest" class="dropdown-item">
+            <div class="item-title">
+              <span>🍏 Apple Silicon</span>
+              <span class="tag-rec" data-i18n="hero.tagRec">推荐</span>
+            </div>
+            <div class="item-desc" data-i18n="hero.appleDesc">适用于 M1, M2, M3, M4 芯片的 Mac</div>
+          </a>
+          <a href="https://github.com/jixiaoyong/RightPlus-App/releases/latest" class="dropdown-item">
+            <div class="item-title">
+              <span>💻 Intel 处理器</span>
+            </div>
+            <div class="item-desc" data-i18n="hero.intelDesc">适用于搭载 Intel Core 处理器的老款 Mac</div>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="https://github.com/jixiaoyong/RightPlus-App/releases" target="_blank" class="dropdown-item">
+            <div class="item-title">
+              <span>📦 <span data-i18n="hero.allReleases">所有 Releases 发行包</span></span>
+            </div>
+            <div class="item-desc" data-i18n="hero.releasesDesc">在 GitHub 查看历史版本与更新说明</div>
+          </a>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- 预览窗口 -->
-  <div class="hero-preview">
-    <div class="preview-window">
-      <img src="assets/menu-preview.svg" alt="Right+ Finder 菜单预览">
+  <!-- Hardware Mockup / Preview Window -->
+  <div class="preview-container">
+    <div class="mac-window">
+      <div class="mac-titlebar">
+        <div class="traffic-lights">
+          <div class="traffic-light traffic-close"></div>
+          <div class="traffic-light traffic-min"></div>
+          <div class="traffic-light traffic-max"></div>
+        </div>
+        <div class="window-title" data-i18n="preview.title">Finder — Right+ 菜单预览</div>
+      </div>
+      <div class="window-canvas">
+        <img src="assets/menu-preview.svg" alt="Right+ Finder 菜单预览">
+      </div>
     </div>
   </div>
 
-  <!-- 功能特性 -->
+  <!-- Bento Features Section -->
   <section class="section" id="features">
     <div class="section-header">
-      <h2>精心打磨的右键核心能力</h2>
-      <p>拒绝冗余庞大，每个功能都恰到好处</p>
+      <div class="section-badge" data-i18n="features.badge">FEATURES</div>
+      <h2 data-i18n="features.title">专注打磨每一项高频细节</h2>
+      <p data-i18n="features.sub">不追求臃肿堆叠，将 Finder 右键最迫切的几件事做到极致。</p>
     </div>
-    <div class="grid">
-      <div class="card">
-        <div class="card-icon">📄</div>
-        <h3>常用文件一键新建</h3>
-        <p>支持快速新建 Markdown、Word、Excel、PowerPoint、文本、Shell、Python 等文件，并支持自定义模版，同名自动递增命名防覆盖。</p>
+
+    <div class="bento-grid">
+      <!-- Card 1 -->
+      <div class="bento-card">
+        <div class="card-icon-wrap">📄</div>
+        <h3 data-i18n="features.c1.title">常用文件一键新建</h3>
+        <p data-i18n="features.c1.desc">快速新建 Markdown、Word、Excel、PPT、纯文本、Shell、Python 等文件，支持自定义模版，同名自动递增防覆盖。</p>
       </div>
-      <div class="card">
-        <div class="card-icon">🚀</div>
-        <h3>常用应用快速打开</h3>
-        <p>将 VS Code、Sublime、Typora、Xcode 等常用生产力工具钉选在右键菜单，支持智能过滤仅显示能打开当前目标的应用。</p>
+
+      <!-- Card 2 -->
+      <div class="bento-card">
+        <div class="card-icon-wrap">🚀</div>
+        <h3 data-i18n="features.c2.title">常用应用即刻唤起</h3>
+        <p data-i18n="features.c2.desc">将 VS Code、Sublime、Typora 等高频工具固定在右键，支持智能过滤仅显示能打开当前目标的应用。</p>
       </div>
-      <div class="card">
-        <div class="card-icon">📋</div>
-        <h3>一键复制路径 / 文件名</h3>
-        <p>右键快速提取选中项完整 POSIX 路径或纯文件名。支持多选批量复制，自动按换行排布，写脚本和贴命令行更丝滑。</p>
+
+      <!-- Card 3 -->
+      <div class="bento-card">
+        <div class="card-icon-wrap">📋</div>
+        <h3 data-i18n="features.c3.title">批量复制路径 / 文件名</h3>
+        <p data-i18n="features.c3.desc">右键直接复制选中文件的绝对 POSIX 路径或纯文件名。支持多选批量复制，自动按换行排布，丝滑贴入终端。</p>
       </div>
-      <div class="card">
-        <div class="card-icon">💻</div>
-        <h3>所在目录直达终端</h3>
-        <p>无需拖拽文件进终端，右键一键在默认终端或 iTerm2 中直接进入当前文件夹，智能判断文件所在父目录。</p>
+
+      <!-- Card 4 -->
+      <div class="bento-card">
+        <div class="card-icon-wrap">💻</div>
+        <h3 data-i18n="features.c4.title">所在目录直达终端</h3>
+        <p data-i18n="features.c4.desc">告别拖拽文件进终端的繁琐步骤，右键一键在默认终端或 iTerm2 中直达当前文件所在的父目录。</p>
       </div>
-      <div class="card">
-        <div class="card-icon">⚡</div>
-        <h3>Universal 架构 & 极速响应</h3>
-        <p>同时原生支持 Apple Silicon (M1/M2/M3/M4) 与 Intel 芯片。菜单能力走异步预热与缓存，彻底告别右键首开卡顿。</p>
+
+      <!-- Card 5 -->
+      <div class="bento-card">
+        <div class="card-icon-wrap">⚡</div>
+        <h3 data-i18n="features.c5.title">极速响应 & 异步预热</h3>
+        <p data-i18n="features.c5.desc">针对 Apple Silicon 与 Intel 架构深度优化，右键菜单能力走异步预热与缓存，告别右键首开卡顿。</p>
       </div>
-      <div class="card">
-        <div class="card-icon">🔒</div>
-        <h3>隐私优先 & 零网络依赖</h3>
-        <p>本地纯独立运行，不含任何联网请求、数据追踪与上报埋点。所有用户配置均保存在本机 App Group 中。</p>
+
+      <!-- Card 6 -->
+      <div class="bento-card">
+        <div class="card-icon-wrap">🔒</div>
+        <h3 data-i18n="features.c6.title">100% 离线 & 隐私安全</h3>
+        <p data-i18n="features.c6.desc">纯本地单机独立运行，绝无任何网络连接、不上传任何数据埋点，所有配置与缓存仅保存在本机 App Group。</p>
       </div>
     </div>
   </section>
 
-  <!-- 安装与安全指引 -->
+  <!-- Installation Guide -->
   <section class="section" id="install">
     <div class="section-header">
-      <h2>快速安装与启用说明</h2>
-      <p>Right+ 采用开源 Ad-hoc 本地构建签名，初次运行只需简单一步信任</p>
+      <div class="section-badge" data-i18n="install.badge">GETTING STARTED</div>
+      <h2 data-i18n="install.title">简单三步，开启体验</h2>
+      <p data-i18n="install.sub">因为应用由个人开发者本地签名构建，首次使用需简单放行一次 Gatekeeper。</p>
     </div>
-    <div class="install-box">
-      <ul class="step-list">
-        <li class="step-item">
-          <h4>下载并解压安装</h4>
-          <p>从 Releases 下载最新的 <code>RightPlus-v*.zip</code>，解压后将 <code>RightPlus.app</code> 拖入 <strong>“访达” -> “应用程序 (Applications)”</strong> 目录。</p>
-        </li>
-        <li class="step-item">
-          <h4>解除 macOS Gatekeeper 隔离（首次运行）</h4>
-          <p>因为本应用由独立开发者本地构建（未加入高昂费用的 Apple 开发者计划公证），如果系统提示“无法打开，因为无法验证开发者”，请在<strong>终端 (Terminal)</strong> 中执行以下命令解除隔离属性：</p>
-          <div class="code-box">
-            <span id="cmd-text">xattr -cr /Applications/RightPlus.app</span>
-            <button class="copy-btn" onclick="copyCommand()">复制命令</button>
+
+    <div class="install-card">
+      <div class="steps-timeline">
+        <div class="step-row">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h4 data-i18n="install.s1.title">下载并拖入“应用程序”</h4>
+            <p data-i18n="install.s1.desc">从 Releases 下载对应架构的 Zip 压缩包，解压后将 <code>RightPlus.app</code> 拖入系统 <strong>访达 -> 应用程序</strong> 文件夹。</p>
           </div>
-        </li>
-        <li class="step-item">
-          <h4>启动并授予扩展权限</h4>
-          <p>双击打开 Right+，进入 <strong>macOS 系统设置 -> 隐私与安全性 -> 扩展 -> 访达扩展</strong>，勾选启用 <strong>Right+</strong> 即可。</p>
-        </li>
-      </ul>
+        </div>
+
+        <div class="step-row">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h4 data-i18n="install.s2.title">放行 Gatekeeper 隔离（首次运行）</h4>
+            <p data-i18n="install.s2.desc">未参加昂贵的 Apple 开发者计划公证，若系统提示“无法打开/无法验证开发者”，在<strong>终端 (Terminal)</strong> 中执行以下命令：</p>
+            <div class="code-pill">
+              <span id="gatekeeper-cmd">xattr -cr /Applications/RightPlus.app</span>
+              <button class="btn-copy" onclick="copyCommand()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span id="copy-btn-text" data-i18n="install.copyBtn">复制命令</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-row">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h4 data-i18n="install.s3.title">开启访达扩展</h4>
+            <p data-i18n="install.s3.desc">启动 Right+，打开 macOS <strong>系统设置 -> 隐私与安全性 -> 扩展 -> 访达扩展</strong>，勾选启用 <strong>Right+</strong> 即可尽享高效。</p>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- 常见问题 -->
+  <!-- FAQ Section -->
   <section class="section" id="faq">
     <div class="section-header">
-      <h2>常见问题 (FAQ)</h2>
-      <p>遇到使用问题？看看这里能否解决</p>
+      <div class="section-badge" data-i18n="faq.badge">FAQ</div>
+      <h2 data-i18n="faq.title">常见问题</h2>
+      <p data-i18n="faq.sub">遇到配置或显示疑惑？这里有你需要的答案。</p>
     </div>
-    <div class="faq-item">
-      <h4>为什么右键没有立即显示 Right+ 菜单项？</h4>
-      <p>macOS 的 FinderSync 扩展宿主有时会缓存扩展状态。请确保在系统设置中勾选了扩展，并在终端中执行 <code>killall Finder</code> 重启访达即可刷新生效。</p>
-    </div>
-    <div class="faq-item">
-      <h4>应用会收集我的个人数据或上传代码吗？</h4>
-      <p>完全不会。Right+ 是 100% 离线工作的工具，没有配置任何外部网络通信能力，所有操作仅限于本机文件系统与当前登录用户空间。</p>
-    </div>
-    <div class="faq-item">
-      <h4>如何反馈 Bug 或提出新功能需求？</h4>
-      <p>欢迎前往 <a href="https://github.com/jixiaoyong/RightPlus-App/issues" target="_blank">RightPlus-App GitHub Issues</a> 提交反馈或加入讨论。</p>
+
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-question">
+          <span data-i18n="faq.q1">为什么勾选扩展后，右键菜单没有立刻出现？</span>
+          <svg class="faq-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div class="faq-answer">
+          <p data-i18n="faq.a1">macOS 系统有时会深度缓存旧的 Finder 扩展状态。只需在终端中运行一次 <code>killall Finder</code>，访达自动重启后即可立即载入新扩展菜单。</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">
+          <span data-i18n="faq.q2">软件会有常驻后台进程消耗 CPU / 内存吗？</span>
+          <svg class="faq-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div class="faq-answer">
+          <p data-i18n="faq.a2">完全不会。扩展完全由 macOS Finder 宿主在需要展示菜单时即时调用，宿主 App 仅用于修改配置与本地通知，内存占用通常低于 15MB，无感知无负担。</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">
+          <span data-i18n="faq.q3">遇到问题或想要新模板，该去哪里反馈？</span>
+          <svg class="faq-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div class="faq-answer">
+          <p data-i18n="faq.a3">欢迎随时前往官方公开仓库的 <a href="https://github.com/jixiaoyong/RightPlus-App/issues" target="_blank">GitHub Issues</a> 发起讨论，我们积极维护并快速响应。</p>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- 页脚 -->
+  <!-- Footer -->
   <footer>
-    <p>© 2026 Right+ Project. Developed by <a href="https://github.com/jixiaoyong" target="_blank">jixiaoyong</a>. All rights reserved.</p>
-    <p style="margin-top: 0.5rem; font-size: 0.82rem;">Designed for macOS 14.0+</p>
+    <p>© 2026 Right+ Project. Created with craft by <a href="https://github.com/jixiaoyong" target="_blank">jixiaoyong</a>.</p>
+    <p style="margin-top: 0.4rem; font-size: 0.8rem; color: var(--text-tertiary);" data-i18n="footer.builtFor">Native for macOS 14.0+ · Pure Swift · 100% Offline</p>
   </footer>
 
+  <!-- ==========================================================================
+       Language & Theme Manager JavaScript
+       ========================================================================== -->
   <script>
-    function copyCommand() {
-      const text = document.getElementById('cmd-text').innerText;
-      navigator.clipboard.writeText(text).then(() => {
-        const btn = document.querySelector('.copy-btn');
-        btn.innerText = '已复制！';
-        setTimeout(() => { btn.innerText = '复制命令'; }, 2000);
+    // i18n Translations Dictionary
+    const translations = {
+      zh: {
+        "nav.features": "功能特性",
+        "nav.install": "安装指引",
+        "nav.faq": "常见问题",
+        "nav.releases": "发行日志",
+        "hero.title": "让访达右键，恢复本该有的优雅与强大",
+        "hero.subtitle": "Right+ 专为 macOS 打造。纯 Swift 原生，零多余常驻，毫秒级响应。常用文件一键新建、专属 App 快速唤起、精准路径复制与所在目录直达终端。",
+        "hero.downloadApple": "下载 Apple Silicon 版本 (M系列)",
+        "hero.tagRec": "推荐",
+        "hero.appleDesc": "适用于 M1, M2, M3, M4 芯片的 Mac",
+        "hero.intelDesc": "适用于搭载 Intel 处理器的老款 Mac",
+        "hero.allReleases": "所有 Releases 发行包",
+        "hero.releasesDesc": "在 GitHub 查看历史版本与更新说明",
+        "preview.title": "Finder — Right+ 菜单预览",
+        "features.badge": "FEATURES",
+        "features.title": "专注打磨每一项高频细节",
+        "features.sub": "不追求臃肿堆叠，将 Finder 右键最迫切的几件事做到极致。",
+        "features.c1.title": "常用文件一键新建",
+        "features.c1.desc": "快速新建 Markdown、Word、Excel、PPT、纯文本、Shell、Python 等文件，支持自定义模版，同名自动递增防覆盖。",
+        "features.c2.title": "常用应用即刻唤起",
+        "features.c2.desc": "将 VS Code、Sublime、Typora 等高频工具固定在右键，支持智能过滤仅显示能打开当前目标的应用。",
+        "features.c3.title": "批量复制路径 / 文件名",
+        "features.c3.desc": "右键直接复制选中文件的绝对 POSIX 路径或纯文件名。支持多选批量复制，自动按换行排布，丝滑贴入终端。",
+        "features.c4.title": "所在目录直达终端",
+        "features.c4.desc": "告别拖拽文件进终端的繁琐步骤，右键一键在默认终端或 iTerm2 中直达当前文件所在的父目录。",
+        "features.c5.title": "极速响应 & 异步预热",
+        "features.c5.desc": "针对 Apple Silicon 与 Intel 架构深度优化，右键菜单能力走异步预热与缓存，告别右键首开卡顿。",
+        "features.c6.title": "100% 离线 & 隐私安全",
+        "features.c6.desc": "纯本地单机独立运行，绝无任何网络连接、不上传任何数据埋点，所有配置与缓存仅保存在本机 App Group。",
+        "install.badge": "GETTING STARTED",
+        "install.title": "简单三步，开启体验",
+        "install.sub": "因为应用由个人开发者本地签名构建，首次使用需简单放行一次 Gatekeeper。",
+        "install.s1.title": "下载并拖入“应用程序”",
+        "install.s1.desc": "从 Releases 下载对应架构的 Zip 压缩包，解压后将 RightPlus.app 拖入系统 访达 -> 应用程序 文件夹。",
+        "install.s2.title": "放行 Gatekeeper 隔离（首次运行）",
+        "install.s2.desc": "未参加昂贵的 Apple 开发者计划公证，若系统提示“无法打开/无法验证开发者”，在终端中执行以下命令：",
+        "install.copyBtn": "复制命令",
+        "install.copySuccess": "已复制！",
+        "install.s3.title": "开启访达扩展",
+        "install.s3.desc": "启动 Right+，打开 macOS 系统设置 -> 隐私与安全性 -> 扩展 -> 访达扩展，勾选启用 Right+ 即可尽享高效。",
+        "faq.badge": "FAQ",
+        "faq.title": "常见问题",
+        "faq.sub": "遇到配置或显示疑惑？这里有你需要的答案。",
+        "faq.q1": "为什么勾选扩展后，右键菜单没有立刻出现？",
+        "faq.a1": "macOS 系统有时会深度缓存旧的 Finder 扩展状态。只需在终端中运行一次 killall Finder，访达自动重启后即可立即载入新扩展菜单。",
+        "faq.q2": "软件会有常驻后台进程消耗 CPU / 内存吗？",
+        "faq.a2": "完全不会。扩展完全由 macOS Finder 宿主在需要展示菜单时即时调用，宿主 App 仅用于修改配置与本地通知，内存占用通常低于 15MB，无感知无负担。",
+        "faq.q3": "遇到问题或想要新模板，该去哪里反馈？",
+        "faq.a3": "欢迎随时前往官方公开仓库的 GitHub Issues 发起讨论，我们积极维护并快速响应。",
+        "footer.builtFor": "Native for macOS 14.0+ · 纯 Swift 原生 · 100% 离线无联网"
+      },
+      en: {
+        "nav.features": "Features",
+        "nav.install": "Get Started",
+        "nav.faq": "FAQ",
+        "nav.releases": "Releases",
+        "hero.title": "Give Finder context menu the elegance it deserves.",
+        "hero.subtitle": "Right+ is handcrafted natively for macOS. Written purely in Swift, zero bloated background daemons, instant responsiveness. Quick file creation, custom app launch, precise path copy, and instant terminal navigation.",
+        "hero.downloadApple": "Download for Apple Silicon (M Series)",
+        "hero.tagRec": "Recommended",
+        "hero.appleDesc": "For Mac computers with M1, M2, M3, or M4 chips",
+        "hero.intelDesc": "For older Mac computers powered by Intel processors",
+        "hero.allReleases": "All GitHub Releases",
+        "hero.releasesDesc": "Browse previous releases, changelog, and assets",
+        "preview.title": "Finder — Right+ Context Menu Preview",
+        "features.badge": "FEATURES",
+        "features.title": "Engineered for daily workflow essentials",
+        "features.sub": "No bloated toolkits. Perfecting the few things you actually need on macOS right-click.",
+        "features.c1.title": "Instant File Creation",
+        "features.c1.desc": "Quickly create Markdown, Word, Excel, PPT, TXT, Shell, or Python files. Supports custom templates with auto-incrementing names.",
+        "features.c2.title": "Launch Favorite Apps",
+        "features.c2.desc": "Pin essential editors like VS Code, Sublime, and Typora to context menu. Smart filters hide incompatible targets automatically.",
+        "features.c3.title": "Batch Copy Paths / Filenames",
+        "features.c3.desc": "Directly copy full POSIX path or file names. Multi-selection copies all items line-by-line, perfectly ready for terminal pasting.",
+        "features.c4.title": "Open Terminal in Folder",
+        "features.c4.desc": "Skip dragging folders into your terminal. Open default Terminal or iTerm2 directly in the selected item's parent directory.",
+        "features.c5.title": "Fast & Preheated Caching",
+        "features.c5.desc": "Optimized deeply for both Apple Silicon and Intel Macs. Menu capabilities are cached and preheated asynchronously with zero lag.",
+        "features.c6.title": "100% Offline & Private",
+        "features.c6.desc": "Operates purely on-device without any internet permission or analytics tracking. All settings stay in local App Group container.",
+        "install.badge": "GETTING STARTED",
+        "install.title": "Three simple steps to supercharge Finder",
+        "install.sub": "Since Right+ is built with open ad-hoc signatures, a one-time Gatekeeper bypass is required on first launch.",
+        "install.s1.title": "Download & move to Applications",
+        "install.s1.desc": "Download the zip archive for your architecture from Releases, unpack it, and drag RightPlus.app to your Applications folder.",
+        "install.s2.title": "Bypass Gatekeeper (First launch only)",
+        "install.s2.desc": "If macOS warns 'cannot be opened because the developer cannot be verified', run this one-liner in Terminal:",
+        "install.copyBtn": "Copy Command",
+        "install.copySuccess": "Copied!",
+        "install.s3.title": "Enable Finder Extension",
+        "install.s3.desc": "Launch Right+, open macOS System Settings -> Privacy & Security -> Extensions -> Finder Extensions, and enable Right+.",
+        "faq.badge": "FAQ",
+        "faq.title": "Frequently Asked Questions",
+        "faq.sub": "Have questions about setup or configuration? We've got answers.",
+        "faq.q1": "Why didn't the menu appear immediately after enabling the extension?",
+        "faq.a1": "macOS Finder host caches extension state aggressively. Simply run `killall Finder` in Terminal to restart Finder and load the extension.",
+        "faq.q2": "Does Right+ consume CPU or RAM in background?",
+        "faq.a2": "Not at all. The extension runs on-demand within Finder only when context menu opens. Memory footprint is strictly under 15MB.",
+        "faq.q3": "Where can I report bugs or suggest new templates?",
+        "faq.a3": "Feel free to open an issue or start a discussion on our official GitHub Issues page anytime.",
+        "footer.builtFor": "Native for macOS 14.0+ · Pure Swift · 100% Offline"
+      }
+    };
+
+    // Determine current language
+    let currentLang = localStorage.getItem('rightplus_lang');
+    if (!currentLang) {
+      const navLang = navigator.language || navigator.userLanguage || 'en';
+      currentLang = navLang.startsWith('zh') ? 'zh' : 'en';
+    }
+
+    function applyLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('rightplus_lang', lang);
+      document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+      
+      const btnText = document.getElementById('lang-text');
+      if (btnText) {
+        btnText.innerText = lang === 'zh' ? 'English' : '中文';
+      }
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[lang] && translations[lang][key]) {
+          el.innerText = translations[lang][key];
+        }
       });
     }
+
+    // Language Toggle Event
+    document.getElementById('lang-btn').addEventListener('click', () => {
+      applyLanguage(currentLang === 'zh' ? 'en' : 'zh');
+    });
+
+    // Theme Management
+    let currentTheme = localStorage.getItem('rightplus_theme') || 'auto';
+
+    function applyTheme(theme) {
+      currentTheme = theme;
+      localStorage.setItem('rightplus_theme', theme);
+      document.documentElement.setAttribute('data-theme', theme);
+
+      const sunIcon = document.getElementById('theme-icon-sun');
+      const moonIcon = document.getElementById('theme-icon-moon');
+
+      const isDark = (theme === 'dark') || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      if (isDark) {
+        sunIcon.style.display = 'block';
+        moonIcon.style.display = 'none';
+      } else {
+        sunIcon.style.display = 'none';
+        moonIcon.style.display = 'block';
+      }
+    }
+
+    document.getElementById('theme-btn').addEventListener('click', () => {
+      const isCurrentlyDark = (currentTheme === 'dark') || (currentTheme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      applyTheme(isCurrentlyDark ? 'light' : 'dark');
+    });
+
+    // Listen to OS theme changes if on auto
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if (currentTheme === 'auto') {
+        applyTheme('auto');
+      }
+    });
+
+    // Dropdown Toggle
+    const dropdownToggle = document.getElementById('dropdown-toggle');
+    const downloadDropdown = document.getElementById('download-dropdown');
+
+    dropdownToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      downloadDropdown.classList.toggle('show');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!downloadDropdown.contains(e.target)) {
+        downloadDropdown.classList.remove('show');
+      }
+    });
+
+    // Copy Command Helper
+    function copyCommand() {
+      const text = document.getElementById('gatekeeper-cmd').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const btnText = document.getElementById('copy-btn-text');
+        const original = translations[currentLang]['install.copyBtn'];
+        btnText.innerText = translations[currentLang]['install.copySuccess'];
+        setTimeout(() => {
+          btnText.innerText = original;
+        }, 2000);
+      });
+    }
+
+    // Accordion FAQ Helper
+    document.querySelectorAll('.faq-question').forEach(button => {
+      button.addEventListener('click', () => {
+        const item = button.parentElement;
+        item.classList.toggle('active');
+      });
+    });
+
+    // Initialize Page State
+    applyLanguage(currentLang);
+    applyTheme(currentTheme);
   </script>
 </body>
 </html>

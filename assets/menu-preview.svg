@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="990" height="450" viewBox="0 0 990 450" font-family="-apple-system, 'PingFang SC', 'Helvetica Neue', sans-serif">
+  <defs>
+    <filter id="mshadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#000" flood-opacity="0.14"/>
+    </filter>
+  </defs>
+
+  <rect width="990" height="450" fill="#f7f8fa"/>
+  <text x="495" y="38" text-anchor="middle" font-size="21" font-weight="700" fill="#1d2129">Right+ 右键菜单效果示意图</text>
+  <text x="495" y="62" text-anchor="middle" font-size="13" fill="#6b7280">常用项钉选到主菜单直达 · 其余收纳进子菜单 · 所有菜单项均显示对应图标</text>
+
+  <!-- ================= 主菜单 ================= -->
+  <g filter="url(#mshadow)">
+    <rect x="190" y="120" width="280" height="216" rx="10" fill="#ffffff" stroke="#e2e5ea"/>
+  </g>
+
+  <!-- r1 新建 Markdown(钉选) -->
+  <g>
+    <rect x="204" y="135" width="16" height="16" rx="4" fill="#16a34a"/>
+    <text x="212" y="147" text-anchor="middle" font-size="7.5" font-weight="700" fill="#ffffff">MD</text>
+    <text x="228" y="148" font-size="13" fill="#1d2129">新建 Markdown</text>
+  </g>
+
+  <!-- r2 在 VS Code 打开(钉选) -->
+  <g>
+    <rect x="204" y="165" width="16" height="16" rx="4" fill="#0969da"/>
+    <text x="212" y="177" text-anchor="middle" font-size="8" font-weight="700" fill="#ffffff">&lt;&gt;</text>
+    <text x="228" y="178" font-size="13" fill="#1d2129">在 VS Code 打开</text>
+  </g>
+
+  <line x1="202" y1="193.5" x2="458" y2="193.5" stroke="#eceef1"/>
+
+  <!-- r3 新建(子菜单) -->
+  <g>
+    <rect x="205" y="207" width="14" height="14" rx="3" fill="none" stroke="#64748b" stroke-width="1.4"/>
+    <line x1="212" y1="210" x2="212" y2="218" stroke="#64748b" stroke-width="1.4"/>
+    <line x1="208" y1="214" x2="216" y2="214" stroke="#64748b" stroke-width="1.4"/>
+    <text x="228" y="219" font-size="13" fill="#1d2129">新建</text>
+    <text x="446" y="219" font-size="15" fill="#9ca3af">&#8250;</text>
+  </g>
+
+  <!-- r4 打开方式(子菜单,悬停高亮) -->
+  <rect x="194" y="229" width="272" height="30" rx="6" fill="#2f6fed"/>
+  <g>
+    <rect x="206" y="237" width="7" height="7" rx="1.5" fill="#ffffff"/>
+    <rect x="215" y="237" width="7" height="7" rx="1.5" fill="#ffffff" opacity="0.75"/>
+    <rect x="206" y="246" width="7" height="7" rx="1.5" fill="#ffffff" opacity="0.75"/>
+    <rect x="215" y="246" width="7" height="7" rx="1.5" fill="#ffffff"/>
+    <text x="228" y="249" font-size="13" fill="#ffffff">打开方式</text>
+    <text x="446" y="249" font-size="15" fill="#ffffff">&#8250;</text>
+  </g>
+
+  <line x1="202" y1="264.5" x2="458" y2="264.5" stroke="#eceef1"/>
+
+  <!-- r5 复制路径 -->
+  <g>
+    <rect x="206" y="276" width="11" height="11" rx="2" fill="none" stroke="#64748b" stroke-width="1.3"/>
+    <rect x="209" y="279" width="11" height="11" rx="2" fill="#f7f8fa" stroke="#64748b" stroke-width="1.3"/>
+    <text x="228" y="290" font-size="13" fill="#1d2129">复制路径</text>
+  </g>
+
+  <!-- r6 在终端中打开 -->
+  <g>
+    <rect x="204" y="307" width="16" height="16" rx="4" fill="#111827"/>
+    <text x="212" y="318" text-anchor="middle" font-size="7" font-weight="700" fill="#34d399" font-family="Menlo, monospace">&gt;_</text>
+    <text x="228" y="320" font-size="13" fill="#1d2129">在终端中打开</text>
+  </g>
+
+  <!-- ================= 连接线 ================= -->
+  <line x1="470" y1="214" x2="498" y2="214" stroke="#c3c9d4" stroke-width="1.2"/>
+  <path d="M470 244 H620 V288 H748" fill="none" stroke="#c3c9d4" stroke-width="1.2" stroke-dasharray="4 3"/>
+
+  <!-- ================= 新建 子菜单 ================= -->
+  <g filter="url(#mshadow)">
+    <rect x="500" y="175" width="230" height="136" rx="10" fill="#ffffff" stroke="#e2e5ea"/>
+  </g>
+
+  <!-- 文件夹 -->
+  <g>
+    <path d="M512 192 q0-2 2-2 h4.5 l2 2 h7.5 q2 0 2 2 v7 q0 2 -2 2 h-14 q-2 0 -2-2 z" fill="#54a0ff"/>
+    <text x="536" y="203" font-size="12.5" fill="#1d2129">文件夹</text>
+  </g>
+  <!-- 文本 txt -->
+  <g>
+    <rect x="512" y="220" width="16" height="16" rx="4" fill="#64748b"/>
+    <text x="520" y="232" text-anchor="middle" font-size="6.5" font-weight="700" fill="#ffffff">TXT</text>
+    <text x="536" y="233" font-size="12.5" fill="#1d2129">文本 (txt)</text>
+  </g>
+  <!-- Markdown -->
+  <g>
+    <rect x="512" y="250" width="16" height="16" rx="4" fill="#16a34a"/>
+    <text x="520" y="262" text-anchor="middle" font-size="7.5" font-weight="700" fill="#ffffff">MD</text>
+    <text x="536" y="263" font-size="12.5" fill="#1d2129">Markdown (.md)</text>
+  </g>
+  <!-- Word -->
+  <g>
+    <rect x="512" y="280" width="16" height="16" rx="4" fill="#2563eb"/>
+    <text x="520" y="292" text-anchor="middle" font-size="8" font-weight="700" fill="#ffffff">W</text>
+    <text x="536" y="293" font-size="12.5" fill="#1d2129">Word (.docx)</text>
+  </g>
+
+  <!-- ================= 打开方式 子菜单 ================= -->
+  <g filter="url(#mshadow)">
+    <rect x="750" y="235" width="220" height="106" rx="10" fill="#ffffff" stroke="#e2e5ea"/>
+  </g>
+
+  <!-- Typora -->
+  <g>
+    <rect x="762" y="250" width="16" height="16" rx="4" fill="#dc2626"/>
+    <text x="770" y="262" text-anchor="middle" font-size="8.5" font-weight="700" fill="#ffffff">T</text>
+    <text x="786" y="263" font-size="12.5" fill="#1d2129">在 Typora 中打开</text>
+  </g>
+  <!-- Sublime -->
+  <g>
+    <rect x="762" y="280" width="16" height="16" rx="4" fill="#f59e0b"/>
+    <text x="770" y="292" text-anchor="middle" font-size="8.5" font-weight="700" fill="#ffffff">S</text>
+    <text x="786" y="293" font-size="12.5" fill="#1d2129">在 Sublime Text 中打开</text>
+  </g>
+  <!-- 其他应用 -->
+  <g>
+    <rect x="762" y="310" width="16" height="16" rx="4" fill="#9ca3af"/>
+    <text x="770" y="322" text-anchor="middle" font-size="9" font-weight="700" fill="#ffffff">…</text>
+    <text x="786" y="323" font-size="12.5" fill="#1d2129">其他应用…</text>
+  </g>
+
+  <!-- ================= 图例 ================= -->
+  <circle cx="130" cy="382" r="9" fill="#2f6fed"/>
+  <text x="130" y="386" text-anchor="middle" font-size="11" font-weight="700" fill="#ffffff">1</text>
+  <text x="146" y="386" font-size="12" fill="#374151">钉选主菜单:常用项一级直达,无需进入子菜单</text>
+
+  <circle cx="130" cy="408" r="9" fill="#10b981"/>
+  <text x="130" y="412" text-anchor="middle" font-size="11" font-weight="700" fill="#ffffff">2</text>
+  <text x="146" y="412" font-size="12" fill="#374151">未钉选项自动收纳进「新建」「打开方式」子菜单,每个条目可在设置中独立开关与调整层级</text>
+
+  <circle cx="130" cy="434" r="9" fill="#f59e0b"/>
+  <text x="130" y="438" text-anchor="middle" font-size="11" font-weight="700" fill="#ffffff">3</text>
+  <text x="146" y="438" font-size="12" fill="#374151">全部菜单项携带对应图标:打开方式显示目标 App 真实图标,新建项显示文件类型图标,动作项显示动作图标</text>
+</svg>

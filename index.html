@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Right+ (RightPlus) - 轻量高效的 macOS Finder 右键增强利器</title>
+  <meta name="description" content="Right+ 是一款专为 macOS 打造的原生 Finder 右键增强扩展工具。支持常用文件快速新建、常用应用快速打开、一键复制完整路径与文件名、所在目录直达终端。纯 Swift 原生，轻量极速，保护隐私。">
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+  <style>
+    :root {
+      --bg: #f5f5f7;
+      --card-bg: rgba(255, 255, 255, 0.72);
+      --card-border: rgba(0, 0, 0, 0.08);
+      --text-primary: #1d1d1f;
+      --text-secondary: #86868b;
+      --accent: #0071e3;
+      --accent-hover: #0077ed;
+      --code-bg: #e5e5ea;
+      --nav-bg: rgba(245, 245, 247, 0.82);
+      --shadow: 0 12px 32px rgba(0, 0, 0, 0.05);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0d0d0f;
+        --card-bg: rgba(28, 28, 30, 0.72);
+        --card-border: rgba(255, 255, 255, 0.12);
+        --text-primary: #f5f5f7;
+        --text-secondary: #98989d;
+        --accent: #2997ff;
+        --accent-hover: #40a9ff;
+        --code-bg: #2c2c2e;
+        --nav-bg: rgba(13, 13, 15, 0.82);
+        --shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "PingFang SC", "Helvetica Neue", sans-serif;
+      background-color: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.6;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* 顶部导航 */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background-color: var(--nav-bg);
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .nav-container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0.85rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 700;
+      font-size: 1.25rem;
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+
+    .brand img {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--accent);
+    }
+
+    .btn-github {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 0.4rem 0.9rem;
+      border-radius: 980px;
+      color: var(--text-primary) !important;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Hero 区域 */
+    .hero {
+      max-width: 900px;
+      margin: 5rem auto 3rem;
+      text-align: center;
+      padding: 0 1.5rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.35rem 0.9rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent);
+      background: rgba(41, 151, 255, 0.12);
+      border-radius: 980px;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero h1 {
+      font-size: 3.2rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 1.25rem;
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      max-width: 680px;
+      margin: 0 auto 2.5rem;
+      font-weight: 400;
+    }
+
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background-color: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      font-size: 1.05rem;
+      padding: 0.85rem 2rem;
+      border-radius: 980px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      box-shadow: 0 4px 14px rgba(0, 113, 227, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-primary);
+      font-weight: 600;
+      font-size: 1.05rem;
+      padding: 0.85rem 1.8rem;
+      border-radius: 980px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--code-bg);
+    }
+
+    /* 预览展示图 */
+    .hero-preview {
+      max-width: 860px;
+      margin: 3.5rem auto 5rem;
+      padding: 0 1.5rem;
+    }
+
+    .preview-window {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 1.5rem;
+      backdrop-filter: blur(20px);
+      text-align: center;
+    }
+
+    .preview-window img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+
+    /* 特性网格 */
+    .section {
+      max-width: 1080px;
+      margin: 5rem auto;
+      padding: 0 1.5rem;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+
+    .section-header h2 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+    }
+
+    .section-header p {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(20px);
+      transition: transform 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+    }
+
+    .card-icon {
+      font-size: 2.2rem;
+      margin-bottom: 1.2rem;
+      display: inline-block;
+    }
+
+    .card h3 {
+      font-size: 1.25rem;
+      margin-bottom: 0.6rem;
+      font-weight: 600;
+    }
+
+    .card p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* 安装与安全指南 */
+    .install-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 2.5rem;
+      box-shadow: var(--shadow);
+    }
+
+    .step-list {
+      list-style: none;
+      counter-reset: steps;
+      margin-top: 1.5rem;
+    }
+
+    .step-item {
+      position: relative;
+      padding-left: 3rem;
+      margin-bottom: 2rem;
+    }
+
+    .step-item::before {
+      counter-increment: steps;
+      content: counter(steps);
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .step-item h4 {
+      font-size: 1.1rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .step-item p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    .code-box {
+      background: var(--code-bg);
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 0.6rem;
+    }
+
+    .copy-btn {
+      background: transparent;
+      border: none;
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    /* FAQ */
+    .faq-item {
+      border-bottom: 1px solid var(--card-border);
+      padding: 1.5rem 0;
+    }
+
+    .faq-item h4 {
+      font-size: 1.15rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .faq-item p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    /* 页脚 */
+    footer {
+      border-top: 1px solid var(--card-border);
+      padding: 3rem 1.5rem;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-top: 6rem;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 顶部导航 -->
+  <header>
+    <div class="nav-container">
+      <a href="#" class="brand">
+        <img src="assets/logo.svg" alt="Right+ Logo">
+        <span>Right+</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#features">功能特性</a></li>
+        <li><a href="#install">安装指引</a></li>
+        <li><a href="#faq">常见问题</a></li>
+        <li>
+          <a href="https://github.com/jixiaoyong/RightPlus-App" target="_blank" class="btn-github">
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+            </svg>
+            <span>GitHub</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- Hero 区域 -->
+  <section class="hero">
+    <div class="badge">🚀 macOS 原生 Finder 右键增强扩展</div>
+    <h1>让 macOS Finder 右键<br>恢复强大与高效</h1>
+    <p>Right+ 采用 Swift 与原生 FIFinderSync API 构建，专注于轻量、零卡顿与纯粹体验。快速新建文件、常用 App 唤起、路径复制与目录直达终端，触手可及。</p>
+    <div class="hero-actions">
+      <a href="https://github.com/jixiaoyong/RightPlus-App/releases/latest" class="btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <span>立即下载 Universal 离线包</span>
+      </a>
+      <a href="https://github.com/jixiaoyong/RightPlus-App/releases" class="btn-secondary">
+        <span>查看所有发行版</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- 预览窗口 -->
+  <div class="hero-preview">
+    <div class="preview-window">
+      <img src="assets/menu-preview.svg" alt="Right+ Finder 菜单预览">
+    </div>
+  </div>
+
+  <!-- 功能特性 -->
+  <section class="section" id="features">
+    <div class="section-header">
+      <h2>精心打磨的右键核心能力</h2>
+      <p>拒绝冗余庞大，每个功能都恰到好处</p>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-icon">📄</div>
+        <h3>常用文件一键新建</h3>
+        <p>支持快速新建 Markdown、Word、Excel、PowerPoint、文本、Shell、Python 等文件，并支持自定义模版，同名自动递增命名防覆盖。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🚀</div>
+        <h3>常用应用快速打开</h3>
+        <p>将 VS Code、Sublime、Typora、Xcode 等常用生产力工具钉选在右键菜单，支持智能过滤仅显示能打开当前目标的应用。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📋</div>
+        <h3>一键复制路径 / 文件名</h3>
+        <p>右键快速提取选中项完整 POSIX 路径或纯文件名。支持多选批量复制，自动按换行排布，写脚本和贴命令行更丝滑。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">💻</div>
+        <h3>所在目录直达终端</h3>
+        <p>无需拖拽文件进终端，右键一键在默认终端或 iTerm2 中直接进入当前文件夹，智能判断文件所在父目录。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">⚡</div>
+        <h3>Universal 架构 & 极速响应</h3>
+        <p>同时原生支持 Apple Silicon (M1/M2/M3/M4) 与 Intel 芯片。菜单能力走异步预热与缓存，彻底告别右键首开卡顿。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔒</div>
+        <h3>隐私优先 & 零网络依赖</h3>
+        <p>本地纯独立运行，不含任何联网请求、数据追踪与上报埋点。所有用户配置均保存在本机 App Group 中。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 安装与安全指引 -->
+  <section class="section" id="install">
+    <div class="section-header">
+      <h2>快速安装与启用说明</h2>
+      <p>Right+ 采用开源 Ad-hoc 本地构建签名，初次运行只需简单一步信任</p>
+    </div>
+    <div class="install-box">
+      <ul class="step-list">
+        <li class="step-item">
+          <h4>下载并解压安装</h4>
+          <p>从 Releases 下载最新的 <code>RightPlus-v*.zip</code>，解压后将 <code>RightPlus.app</code> 拖入 <strong>“访达” -> “应用程序 (Applications)”</strong> 目录。</p>
+        </li>
+        <li class="step-item">
+          <h4>解除 macOS Gatekeeper 隔离（首次运行）</h4>
+          <p>因为本应用由独立开发者本地构建（未加入高昂费用的 Apple 开发者计划公证），如果系统提示“无法打开，因为无法验证开发者”，请在<strong>终端 (Terminal)</strong> 中执行以下命令解除隔离属性：</p>
+          <div class="code-box">
+            <span id="cmd-text">xattr -cr /Applications/RightPlus.app</span>
+            <button class="copy-btn" onclick="copyCommand()">复制命令</button>
+          </div>
+        </li>
+        <li class="step-item">
+          <h4>启动并授予扩展权限</h4>
+          <p>双击打开 Right+，进入 <strong>macOS 系统设置 -> 隐私与安全性 -> 扩展 -> 访达扩展</strong>，勾选启用 <strong>Right+</strong> 即可。</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 常见问题 -->
+  <section class="section" id="faq">
+    <div class="section-header">
+      <h2>常见问题 (FAQ)</h2>
+      <p>遇到使用问题？看看这里能否解决</p>
+    </div>
+    <div class="faq-item">
+      <h4>为什么右键没有立即显示 Right+ 菜单项？</h4>
+      <p>macOS 的 FinderSync 扩展宿主有时会缓存扩展状态。请确保在系统设置中勾选了扩展，并在终端中执行 <code>killall Finder</code> 重启访达即可刷新生效。</p>
+    </div>
+    <div class="faq-item">
+      <h4>应用会收集我的个人数据或上传代码吗？</h4>
+      <p>完全不会。Right+ 是 100% 离线工作的工具，没有配置任何外部网络通信能力，所有操作仅限于本机文件系统与当前登录用户空间。</p>
+    </div>
+    <div class="faq-item">
+      <h4>如何反馈 Bug 或提出新功能需求？</h4>
+      <p>欢迎前往 <a href="https://github.com/jixiaoyong/RightPlus-App/issues" target="_blank">RightPlus-App GitHub Issues</a> 提交反馈或加入讨论。</p>
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer>
+    <p>© 2026 Right+ Project. Developed by <a href="https://github.com/jixiaoyong" target="_blank">jixiaoyong</a>. All rights reserved.</p>
+    <p style="margin-top: 0.5rem; font-size: 0.82rem;">Designed for macOS 14.0+</p>
+  </footer>
+
+  <script>
+    function copyCommand() {
+      const text = document.getElementById('cmd-text').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.querySelector('.copy-btn');
+        btn.innerText = '已复制！';
+        setTimeout(() => { btn.innerText = '复制命令'; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

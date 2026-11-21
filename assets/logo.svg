@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <path id="sq" d="M26 0H74C86.5 0 92.6 2.5 96.3 8.2C99 12.6 100 18.5 100 26V74C100 86.5 97.5 92.6 91.8 96.3C87.4 99 81.5 100 74 100H26C13.5 100 7.4 97.5 3.7 91.8C1 87.4 0 81.5 0 74V26C0 13.5 2.5 7.4 8.2 3.7C12.6 1 18.5 0 26 0Z"/>
+    <linearGradient id="gBlue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4BA9FF"/>
+      <stop offset="1" stop-color="#0A5FDE"/>
+    </linearGradient>
+    <linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".25"/>
+      <stop offset=".55" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="1.2" stdDeviation="1.4" flood-color="#000000" flood-opacity=".22"/>
+    </filter>
+    <path id="cursorPath" d="M27 15 L27 57 L38.5 46 L46 63 L54.5 59 L47 42.5 L62 41.5 Z"/>
+  </defs>
+  <use href="#sq" fill="url(#gBlue)"/>
+  <use href="#sq" fill="url(#gloss)"/>
+  <g transform="translate(-9 -3) scale(1.15)" filter="url(#soft)">
+    <rect x="20" y="16" width="58" height="54" rx="12" fill="#fff"/>
+    <rect x="25" y="22" width="48" height="13" rx="6.5" fill="#007AFF" fill-opacity=".14"/>
+    <rect x="30" y="26" width="6" height="5" rx="1.6" fill="#007AFF" fill-opacity=".75"/>
+    <path d="M40 28.5H67" stroke="#007AFF" stroke-opacity=".75" stroke-width="4" stroke-linecap="round" fill="none"/>
+    <rect x="30" y="41" width="6" height="5" rx="1.6" fill="#0E93BE" fill-opacity=".55"/>
+    <path d="M40 43.5H70" stroke="#0E93BE" stroke-opacity=".5" stroke-width="4" stroke-linecap="round" fill="none"/>
+    <rect x="30" y="53" width="6" height="5" rx="1.6" fill="#0E93BE" fill-opacity=".55"/>
+    <path d="M40 55.5H60" stroke="#0E93BE" stroke-opacity=".5" stroke-width="4" stroke-linecap="round" fill="none"/>
+  </g>
+  <g filter="url(#soft)">
+    <use href="#cursorPath" fill="#fff" stroke="#1D1D1F" stroke-width="2.5" transform="translate(54.8 56) scale(.5)"/>
+  </g>
+</svg>
